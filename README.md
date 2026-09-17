@@ -36,3 +36,8 @@ adb pull /tmp/recovery.log
 
 If `/data` is not decrypted, also record the exact error shown in
 `/tmp/recovery.log` and the output of `adb shell ls -l /dev/block/by-name`.
+
+For this tree, the Keymaster startup log must report `os_version = 130000`.
+Also verify that `Store_1.tf` is opened from an ext4-mounted
+`/mnt/vendor/persist`, not from `tmpfs`, and that `rpmb_gp_open_session end`
+appears before `fscrypt_mount_metadata_encrypted`.

@@ -12,6 +12,13 @@ on init
 
 on fs
     install_keyring
+    # Recovery skips Android first-stage mounts. Trustonic must use the real
+    # persist filesystem instead of creating its secure store in rootfs tmpfs.
+    wait /dev/block/by-name/persist 5
+    mount ext4 /dev/block/by-name/persist /mnt/vendor/persist noatime nosuid nodev
+    start mobicore
+    start vendor.keymaster-4-1-trustonic
+    start vendor.gatekeeper-1-0
 
 on early-init
     # Keep the recovery console useful when debugging early FBE failures.
@@ -34,11 +41,6 @@ service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-ser
     group root
     disabled
     seclabel u:r:recovery:s0
-
-on property:hwservicemanager.ready=true
-    start mobicore
-    start vendor.keymaster-4-1-trustonic
-    start vendor.gatekeeper-1-0
 
 on property:sys.usb.config=adb
     start adbd
