@@ -12,10 +12,11 @@ on init
 
 on fs
     install_keyring
-    # Recovery skips Android first-stage mounts. Trustonic must use the real
-    # persist filesystem instead of creating its secure store in rootfs tmpfs.
+    # Recovery skips Android first-stage mounts. Mount persist before starting
+    # Trustonic so its secure store never falls back to rootfs tmpfs.
     wait /dev/block/by-name/persist 5
-    mount ext4 /dev/block/by-name/persist /mnt/vendor/persist noatime nosuid nodev
+    mount ext4 /dev/block/by-name/persist /persist noatime nosuid nodev
+    mkdir /persist/mcRegistry 0771 system system
     start mobicore
     start vendor.keymaster-4-1-trustonic
     start vendor.gatekeeper-1-0
@@ -72,5 +73,9 @@ on property:sys.usb.config=fastboot
     restart fastbootd
     
 on boot
+    # This action is parsed before init's class_start default action. Keymaster
+    # starts asynchronously after hwservicemanager becomes available; delay the
+    # default recovery service until its RPMB listener is fully initialized.
+    exec -- /system/bin/sleep 4
     start health-hal-2-1
     setprop sys.usb.config adb

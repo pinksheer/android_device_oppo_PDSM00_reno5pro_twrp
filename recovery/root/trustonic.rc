@@ -1,4 +1,4 @@
-service mobicore /vendor/bin/mcDriverDaemon --P1 /mnt/vendor/persist/mcRegistry \
+service mobicore /vendor/bin/mcDriverDaemon --P1 /persist/mcRegistry \
     -r /vendor/app/mcRegistry/020f0000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/05120000000000000000000000000000.drbin \
     -r /vendor/app/mcRegistry/020b0000000000000000000000000000.drbin \

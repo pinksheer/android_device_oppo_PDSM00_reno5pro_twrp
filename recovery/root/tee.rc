@@ -1,16 +1,14 @@
 on init
-    #create mountpoint for /mnt/vendor/persist partition
-    mkdir /mnt/vendor/persist 0771 system system
+    mkdir /persist 0771 system system
 
 on post-fs
-    chown system system /mnt/vendor/persist
-    chmod 0771 /mnt/vendor/persist
+    chown system system /persist
+    chmod 0771 /persist
 
-    # We restorecon /mnt/vendor/persist to set SEPolicy label.
-    restorecon /mnt/vendor/persist
+    restorecon /persist
 
     # Create mcRegistry to store failure record
-    mkdir /mnt/vendor/persist/mcRegistry 0771 system system
+    mkdir /persist/mcRegistry 0771 system system
 
 on post-fs-data
     # Create /data/vendor/key_provisioning dir and get proper encryption policy installed

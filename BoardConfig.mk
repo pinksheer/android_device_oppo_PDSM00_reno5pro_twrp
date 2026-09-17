@@ -19,6 +19,7 @@
 DEVICE_PATH := device/OPPO/PDSM00
 
 ALLOW_MISSING_DEPENDENCIES := true
+TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
 # Architecture
 TARGET_ARCH := arm64
