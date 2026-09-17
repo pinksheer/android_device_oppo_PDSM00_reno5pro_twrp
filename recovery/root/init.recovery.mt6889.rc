@@ -3,10 +3,16 @@ import /trustonic.rc
 
 on init
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
+    # A recovery ramdisk has no boot build.prop, but Trustonic requires this
+    # value when validating and upgrading metadata-encryption keyblobs.
+    setprop ro.bootimage.build.version.security_patch 2024-11-05
     setprop log.tag.vold V
     setprop log.tag.fs_mgr V
     setprop log.tag.libfscrypt V
     setprop log.tag.Keymaster V
+    setprop log.tag.keystore2 V
+    setprop log.tag.fscrypt V
+    setprop log.tag.StorageManagerService V
     setprop log.tag.GateKeeper V
     setprop log.tag.TWRP V
 
@@ -21,12 +27,13 @@ on fs
     start vendor.keymaster-4-1-trustonic
     start vendor.gatekeeper-1-0
 
+    # mcDriverDaemon registers Keymaster before its RPMB listener is ready.
+    # Keep recovery's mount/decrypt path behind Trustonic initialization.
+    exec -- /system/bin/sleep 5
+
 on early-init
     # Keep the recovery console useful when debugging early FBE failures.
     write /proc/sys/kernel/printk 8 8 8 8
-
-on post-fs
-    start boot-hal-1-1
 
 service vendor.keymaster-4-1-trustonic /vendor/bin/hw/android.hardware.keymaster@4.1-service.trustonic
     interface android.hardware.keymaster@4.0::IKeymasterDevice default
@@ -73,9 +80,5 @@ on property:sys.usb.config=fastboot
     restart fastbootd
     
 on boot
-    # This action is parsed before init's class_start default action. Keymaster
-    # starts asynchronously after hwservicemanager becomes available; delay the
-    # default recovery service until its RPMB listener is fully initialized.
-    exec -- /system/bin/sleep 4
     start health-hal-2-1
     setprop sys.usb.config adb
